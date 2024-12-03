@@ -1,16 +1,5 @@
 import {io, Socket} from 'socket.io-client';
 
-// export const socket = ;
-
-
-// socket.on('init-message-published', (messages: any) => {
-//     setMessages(messages)
-// })
-//
-// socket.on('new-message-sent', (message: any) => {
-//     setMessages((messages) => [...messages, message])
-// })
-
 export const api = {
     socket: null as null | Socket,
 
@@ -47,9 +36,3 @@ export const api = {
         this.socket?.emit('client-typed')
     }
 }
-
-// return () => {
-//     socket.off('init-message-published');
-//     socket.off('new-message-sent');
-//     socket.off('connect');
-// };

@@ -1,5 +1,4 @@
 import React, {useEffect, useRef, useState} from 'react';
-import logo from './logo.svg';
 import './App.css';
 import {useDispatch, useSelector} from "react-redux";
 import {AppStateType} from "./store";
@@ -7,7 +6,6 @@ import {createConnection, destroyConnection, sendMessage, setClientName, typeMes
 
 
 function App() {
-    console.log('App')
     const messages = useSelector((state: AppStateType) => state.chat.messages)
     const typingUsers = useSelector((state: AppStateType) => state.chat.typingUsers)
 
@@ -20,7 +18,6 @@ function App() {
         };
     }, []);
 
-    // const [messages, setMessages] = useState<any[]>([])
 
     const [message, setMessage] = useState<string>('')
     const [name, setName] = useState<string>('anonym')
