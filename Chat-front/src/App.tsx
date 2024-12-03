@@ -1,37 +1,30 @@
 import React, {useEffect, useRef, useState} from 'react';
 import logo from './logo.svg';
 import './App.css';
-import {io} from "socket.io-client";
-import {socket} from "./socket";
+import {useDispatch, useSelector} from "react-redux";
+import {AppStateType} from "./store";
+import {createConnection, destroyConnection, sendMessage, setClientName} from "./chatReducer";
 
 
 function App() {
+    debugger
+    const messages = useSelector((state: AppStateType) => state.chat.messages)
+    debugger
+    console.log(messages)
+    const dispatch = useDispatch()
 
     useEffect(() => {
-        socket.on('init-message-published', (messages: any) => {
-            setMessages(messages)
-        })
-
-        socket.on('new-message-sent', (message: any) => {
-            setMessages((messages) => [...messages, message])
-        })
-
+        dispatch(createConnection())
         return () => {
-            socket.off('init-message-published');
-            socket.off('new-message-sent');
-            socket.off('connect');
+            dispatch(destroyConnection())
         };
-
     }, []);
 
-    socket.on('connect', () => {
-        console.log('Connected to server');
-    });
-    const [messages, setMessages] = useState<any[]>([])
+    // const [messages, setMessages] = useState<any[]>([])
 
-    const [message, setMessage] = useState('')
-    const [name, setName] = useState('')
-    const [isAutoScrollActive, setIsAutoScrollActive] = useState<boolean>(false)
+    const [message, setMessage] = useState<string>('')
+    const [name, setName] = useState<string>('anonym')
+    const [isAutoScrollActive, setIsAutoScrollActive] = useState<boolean>(true)
     const [lastScrollTop, setLastScrollTop] = useState(0)
 
     useEffect(() => {
@@ -54,18 +47,20 @@ function App() {
                     width: '300px',
                     overflowY: 'scroll'
                 }}
-                onScroll={(e)=>{
-                    let element = e.currentTarget
-                    const maxScrollPosition = element.scrollHeight - element.clientHeight
-                    if (element.scrollTop > lastScrollTop && Math.abs(maxScrollPosition - element.scrollTop) < 10){
-                        setIsAutoScrollActive(true)
-                    } else{
-                        setIsAutoScrollActive(false)
-                    }
-                    setLastScrollTop(element.scrollTop)
-                }}
+                     onScroll={(e) => {
+                         let element = e.currentTarget
+                         const maxScrollPosition = element.scrollHeight - element.clientHeight
+
+                         if (element.scrollTop > lastScrollTop && Math.abs(maxScrollPosition - element.scrollTop) < 10) {
+                             setIsAutoScrollActive(true)
+                         } else {
+                             setIsAutoScrollActive(false)
+                         }
+
+                         setLastScrollTop(element.scrollTop)
+                     }}
                 >
-                    {messages.map(m => {
+                    {messages.map((m: any) => {
                         return <div key={m.id}>
                             <b>{m.user.name}:</b> {m.message}
                             <hr/>
@@ -78,14 +73,14 @@ function App() {
                         setName(e.currentTarget.value)
                     }}/>
                     <button onClick={() => {
-                        socket.emit('client-name-sent', name)
+                        dispatch(setClientName(name))
                     }}>Send Name
                     </button>
                 </div>
                 <div>
                     <textarea value={message} onChange={(e) => setMessage(e.currentTarget.value)}></textarea>
                     <button onClick={() => {
-                        socket.emit('client-message-sent', message)
+                        dispatch(sendMessage(message))
                         setMessage('')
                     }}>Send
                     </button>
