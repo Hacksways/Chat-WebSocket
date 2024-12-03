@@ -19,10 +19,12 @@ export const api = {
     },
 
     subscribe(initMessagesHandler: (messages: any) => void,
-              newMessageSentHandler: (message: any) => void
+              newMessageSentHandler: (message: any) => void,
+              userTypingHandler: (user: any) => void
     ) {
         this.socket?.on('init-message-published', initMessagesHandler)
         this.socket?.on('new-message-sent', newMessageSentHandler)
+        this.socket?.on('client-typing', userTypingHandler)
     },
 
     destroyConnection() {
@@ -39,6 +41,10 @@ export const api = {
 
     sendMessage(message:any){
         this.socket?.emit('client-message-sent', message)
+    },
+
+    typeMessage(){
+        this.socket?.emit('client-typed')
     }
 }
 

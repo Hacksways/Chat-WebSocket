@@ -1,7 +1,8 @@
 import {api} from "./socket";
 
 const initialState = {
-    messages: []
+    messages: [],
+    typingUsers: []
 }
 
 export const chatReducer = (state: any = initialState, action: any) => {
@@ -12,7 +13,17 @@ export const chatReducer = (state: any = initialState, action: any) => {
         }
 
         case 'new-message-received': {
-            return {...state, messages: [...state.messages, action.message]}
+            return {
+                ...state, messages: [...state.messages, action.message],
+                typingUsers: state.typingUsers.filter((u: any) => u.id !== action.message.user.id)
+            }
+        }
+
+        case 'typing-user-added': {
+            return {
+                ...state,
+                typingUsers: [...state.typingUsers.filter((u: any) => u.id !== action.user.id), action.user]
+            }
         }
 
         default:
@@ -22,25 +33,33 @@ export const chatReducer = (state: any = initialState, action: any) => {
 
 const messagesReceived = (messages: any) => ({type: 'message-received', messages})
 const newMessagesReceived = (message: any) => ({type: 'new-message-received', message})
+const typingUserAdded = (user: any) => ({type: 'typing-user-added', user})
 
 
 export const createConnection = () => (dispatch: any) => {
     api.createConnection()
     api.subscribe((messages: any) => {
-        dispatch(messagesReceived(messages))
+            dispatch(messagesReceived(messages))
         },
         (message: any) => {
-        dispatch(newMessagesReceived(message))
+            dispatch(newMessagesReceived(message))
+        },
+        (user: any) => {
+            dispatch(typingUserAdded(user))
         }
     )
 }
 
-export const setClientName = (name:any) => (dispatch: any) => {
+export const setClientName = (name: any) => (dispatch: any) => {
     api.sendName(name)
 }
 
-export const sendMessage = (message:any) => (dispatch: any) => {
+export const sendMessage = (message: any) => (dispatch: any) => {
     api.sendMessage(message)
+}
+
+export const typeMessage = () => (dispatch: any) => {
+    api.typeMessage()
 }
 
 export const destroyConnection = () => (dispatch: any) => {

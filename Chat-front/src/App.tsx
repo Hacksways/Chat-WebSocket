@@ -3,14 +3,14 @@ import logo from './logo.svg';
 import './App.css';
 import {useDispatch, useSelector} from "react-redux";
 import {AppStateType} from "./store";
-import {createConnection, destroyConnection, sendMessage, setClientName} from "./chatReducer";
+import {createConnection, destroyConnection, sendMessage, setClientName, typeMessage} from "./chatReducer";
 
 
 function App() {
-    debugger
+    console.log('App')
     const messages = useSelector((state: AppStateType) => state.chat.messages)
-    debugger
-    console.log(messages)
+    const typingUsers = useSelector((state: AppStateType) => state.chat.typingUsers)
+
     const dispatch = useDispatch()
 
     useEffect(() => {
@@ -66,6 +66,13 @@ function App() {
                             <hr/>
                         </div>
                     })}
+
+                    {typingUsers.map((u: any) => {
+                        return <div key={u.id}>
+                            <b>{u.name}:</b> ...
+                            <hr/>
+                        </div>
+                    })}
                     <div ref={messagesAnchorRef}></div>
                 </div>
                 <div>
@@ -78,7 +85,11 @@ function App() {
                     </button>
                 </div>
                 <div>
-                    <textarea value={message} onChange={(e) => setMessage(e.currentTarget.value)}></textarea>
+                    <textarea value={message}
+                              onKeyPress={()=>{
+                                  dispatch(typeMessage())
+                              }}
+                              onChange={(e) => setMessage(e.currentTarget.value)}></textarea>
                     <button onClick={() => {
                         dispatch(sendMessage(message))
                         setMessage('')

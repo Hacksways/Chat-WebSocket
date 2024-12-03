@@ -42,6 +42,11 @@ io.on('connection', (socket) => {
         user.name = name
     })
 
+    socket.on('client-typed', ()=>{
+        socket.emit('client-typing', users.get(socket))
+
+    })
+
 
     socket.on('client-message-sent', (message:any)=>{
         if (typeof message !== 'string' || message.length < 1) return
